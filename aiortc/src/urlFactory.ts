@@ -10,5 +10,5 @@ export function getProtooUrl(
 	{ roomId: string; peerId: string; }
 ): string
 {
-	return `wss://${hostname}:${protooPort}/?roomId=${roomId}&peerId=${peerId}`;
+	return `ws://${hostname}:${protooPort}/?roomId=${roomId}&peerId=${peerId}`;
 }
