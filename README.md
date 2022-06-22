@@ -1,3 +1,20 @@
+```
+FE
+export PROTOO_LISTEN_PORT=4444
+export MEDIASOUP_LISTEN_IP=192.168.40.4
+
+BE
+export MEDIASOUP_LISTEN_IP=192.168.40.4
+export PROTOO_LISTEN_PORT=4444
+```
+
+
+
+
+
+
+
+
 # mediasoup-demo v3
 
 A demo application of [mediasoup](https://mediasoup.org) **v3**.
