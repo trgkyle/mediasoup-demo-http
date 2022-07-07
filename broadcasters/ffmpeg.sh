@@ -63,7 +63,7 @@ fi
 set -e
 
 BROADCASTER_ID=$(LC_CTYPE=C tr -dc A-Za-z0-9 < /dev/urandom | fold -w ${1:-32} | head -n 1)
-HTTPIE_COMMAND="http --check-status"
+HTTPIE_COMMAND="http --check-status --verify=no"
 AUDIO_SSRC=1111
 AUDIO_PT=100
 VIDEO_SSRC=2222
@@ -143,13 +143,13 @@ eval "$(echo ${res} | jq -r '@sh "videoTransportId=\(.id) videoTransportIp=\(.ip
 # Create a mediasoup Producer to send audio by sending our RTP parameters via a
 # HTTP POST.
 #
-echo ">>> creating mediasoup audio Producer..."
+# echo ">>> creating mediasoup audio Producer..."
 
-${HTTPIE_COMMAND} -v \
-	POST ${SERVER_URL}/rooms/${ROOM_ID}/broadcasters/${BROADCASTER_ID}/transports/${audioTransportId}/producers \
-	kind="audio" \
-	rtpParameters:="{ \"codecs\": [{ \"mimeType\":\"audio/opus\", \"payloadType\":${AUDIO_PT}, \"clockRate\":48000, \"channels\":2, \"parameters\":{ \"sprop-stereo\":1 } }], \"encodings\": [{ \"ssrc\":${AUDIO_SSRC} }] }" \
-	> /dev/null
+# ${HTTPIE_COMMAND} -v \
+# 	POST ${SERVER_URL}/rooms/${ROOM_ID}/broadcasters/${BROADCASTER_ID}/transports/${audioTransportId}/producers \
+# 	kind="audio" \
+# 	rtpParameters:="{ \"codecs\": [{ \"mimeType\":\"audio/opus\", \"payloadType\":${AUDIO_PT}, \"clockRate\":48000, \"channels\":2, \"parameters\":{ \"sprop-stereo\":1 } }], \"encodings\": [{ \"ssrc\":${AUDIO_SSRC} }] }" \
+# 	> /dev/null
 
 #
 # Create a mediasoup Producer to send video by sending our RTP parameters via a
