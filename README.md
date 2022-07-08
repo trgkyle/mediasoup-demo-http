@@ -8,6 +8,7 @@ export MEDIASOUP_LISTEN_IP=192.168.40.4
 export PROTOO_LISTEN_PORT=4443
 ```
 
+SERVER_URL=http://192.168.40.4:4444 ROOM_ID=horus MEDIA_FILE=rtsp://admin:Techainer123@192.168.50.2/Streaming/Channels/101 ./ffmpeg.sh
 
 
 

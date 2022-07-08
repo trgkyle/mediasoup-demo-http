@@ -6,7 +6,7 @@ function show_usage()
 	echo "USAGE"
 	echo "-----"
 	echo
-	echo "  SERVER_URL=https://my.mediasoup-demo.org:4443 ROOM_ID=test MEDIA_FILE=./test.mp4 ./ffmpeg.sh"
+	echo "  SERVER_URL=https://my.mediasoup-demo.org:4443 ROOM_ID=test MEDIA_FILE=./test.mp4 BROADCASTER_ID=123 ./ffmpeg.sh"
 	echo
 	echo "  where:"
 	echo "  - SERVER_URL is the URL of the mediasoup-demo API server"
@@ -26,6 +26,12 @@ echo
 
 if [ -z "${SERVER_URL}" ] ; then
 	>&2 echo "ERROR: missing SERVER_URL environment variable"
+	show_usage
+	exit 1
+fi
+
+if [ -z "${BROADCASTER_ID}" ] ; then
+	>&2 echo "ERROR: missing BROADCASTER_ID environment variable"
 	show_usage
 	exit 1
 fi
@@ -61,11 +67,7 @@ if [ "$(command -v jq)" == "" ] ; then
 fi
 
 set -e
-
-BROADCASTER_ID=$(LC_CTYPE=C tr -dc A-Za-z0-9 < /dev/urandom | fold -w ${1:-32} | head -n 1)
 HTTPIE_COMMAND="http --check-status --verify=no"
-AUDIO_SSRC=1111
-AUDIO_PT=100
 VIDEO_SSRC=2222
 VIDEO_PT=101
 
@@ -117,7 +119,6 @@ res=$(${HTTPIE_COMMAND} \
 # Parse JSON response into Shell variables and extract the PlainTransport id,
 # IP, port and RTCP port.
 #
-eval "$(echo ${res} | jq -r '@sh "audioTransportId=\(.id) audioTransportIp=\(.ip) audioTransportPort=\(.port) audioTransportRtcpPort=\(.rtcpPort)"')"
 
 #
 # Create a PlainTransport in the mediasoup to send our video using plain RTP
@@ -181,10 +182,9 @@ ffmpeg \
 	-v info \
 	-stream_loop -1 \
 	-i ${MEDIA_FILE} \
-	-map 0:a:0? \
-	-acodec libopus \
+	-filter:v fps=20 \
 	-map 0:v:0 \
 	-pix_fmt yuv420p -c:v libvpx -b:v 1000k -deadline realtime \
 	-cpu-used 4 \
 	-f tee \
-	"[select=a:f=rtp:ssrc=${AUDIO_SSRC}:payload_type=${AUDIO_PT}]rtp://${audioTransportIp}:${audioTransportPort}?rtcpport=${audioTransportRtcpPort}|[select=v:f=rtp:ssrc=${VIDEO_SSRC}:payload_type=${VIDEO_PT}]rtp://${videoTransportIp}:${videoTransportPort}?rtcpport=${videoTransportRtcpPort}"
+	"[select=v:f=rtp:ssrc=${VIDEO_SSRC}:payload_type=${VIDEO_PT}]rtp://${videoTransportIp}:${videoTransportPort}?rtcpport=${videoTransportRtcpPort}"
