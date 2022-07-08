@@ -36,6 +36,12 @@ if [ -z "${BROADCASTER_ID}" ] ; then
 	exit 1
 fi
 
+if [ -z "${FPS}" ] ; then
+	>&2 echo "ERROR: missing FPS environment variable"
+	show_usage
+	exit 1
+fi
+
 if [ -z "${ROOM_ID}" ] ; then
 	>&2 echo "ERROR: missing ROOM_ID environment variable"
 	show_usage
@@ -70,7 +76,7 @@ set -e
 HTTPIE_COMMAND="http --check-status --verify=no"
 VIDEO_SSRC=2222
 VIDEO_PT=101
-
+BROADCASTER_ID=$BROADCASTER_ID"_backup"
 #
 # Verify that a room with id ROOM_ID does exist by sending a simlpe HTTP GET. If
 # not abort since we are not allowed to initiate a room..
@@ -91,7 +97,7 @@ echo ">>> creating Broadcaster..."
 ${HTTPIE_COMMAND} \
 	POST ${SERVER_URL}/rooms/${ROOM_ID}/broadcasters \
 	id="${BROADCASTER_ID}" \
-	displayName="Broadcaster" \
+	displayName="${BROADCASTER_ID}" \
 	device:='{"name": "FFmpeg"}' \
 	> /dev/null
 
@@ -182,7 +188,7 @@ ffmpeg \
 	-v info \
 	-stream_loop -1 \
 	-i ${MEDIA_FILE} \
-	-filter:v fps=20 \
+	-filter:v fps=${FPS} \
 	-map 0:v:0 \
 	-pix_fmt yuv420p -c:v libvpx -b:v 1000k -deadline realtime \
 	-cpu-used 4 \
