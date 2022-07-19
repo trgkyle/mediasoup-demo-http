@@ -8,7 +8,6 @@
  * calls the mediasoup API with those settings when appropriate.
  */
 
- const os = require('os');
 
  module.exports =
  {
