@@ -1,6 +1,6 @@
 export function getProtooUrl({ roomId, peerId })
 {
-	const hostname = '192.168.40.4:30706/mediasoup';
+	const hostname = 'horus.techainer.com/mediasoup';
 
-	return `ws://${hostname}/?roomId=${roomId}&peerId=${peerId}`;
+	return `wss://${hostname}/?roomId=${roomId}&peerId=${peerId}`;
 }
